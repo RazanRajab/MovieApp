@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">MovieApp</string>
+    <string name="app_name">MoviesApp</string>
     <string name="Description">Movie Poster</string>
+    <string name="menuItem_order_by">Order By</string>
+    <string name="most_popular_menuItem">Most Popular</string>
+    <string name="top_rated_menuItem">Top Rated</string>
 </resources>
