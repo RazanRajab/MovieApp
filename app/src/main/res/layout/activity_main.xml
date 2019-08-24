@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+<RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/mainGrid"
-    android:columnCount="2"
-    android:clickable="true">
+    android:id="@+id/mainRecyclerView">
 
-</GridView>
+</RecyclerView>
