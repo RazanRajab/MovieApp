@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import com.example.movieapp.Model.Movie;
 import com.example.movieapp.TheMoviesAPI.MovieResponse;
 import com.example.movieapp.TheMoviesAPI.MoviesService;
 import com.example.movieapp.TheMoviesAPI.Result;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
-
+                Intent n =new Intent(getApplicationContext(),MovieDetailsActivity.class);
+                Gson gson = new Gson();
+                n.putExtra(Movie.class.getName(),gson.toJson(Movies.get(position)));
+                startActivity(n);
             }
         });
     }
