@@ -5,11 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.movieapp.MainActivity;
 import com.example.movieapp.Model.Movie;
 import com.example.movieapp.R;
 import com.squareup.picasso.Picasso;
@@ -19,7 +19,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-class MoviesAdapter extends
+public class MoviesAdapter extends
         RecyclerView.Adapter<MoviesAdapter.ViewHolder>{
 
      class ViewHolder extends RecyclerView.ViewHolder {
@@ -37,7 +37,6 @@ class MoviesAdapter extends
     private List<Movie> Movies;
     private View.OnClickListener onMovieClickListener;
     private Context context;
-    @BindView(R.id.posterIV)ImageView imageView;
 
     // Pass in the tasks array into the constructor
     public MoviesAdapter(List<Movie> Movies ) {
@@ -64,7 +63,11 @@ class MoviesAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Movie m = Movies.get(position);
-        Picasso.with(context).load(m.getPoster_path()).into(imageView);
+        Toast.makeText(context, m.getPoster_path(), Toast.LENGTH_SHORT).show();
+        Picasso.with(context)
+                .load("https://image.tmdb.org/t/p/w185/"+m.getPoster_path())
+                .placeholder(R.drawable.ic_movie).error(R.drawable.ic_broken_image)
+                .into(holder.imageView);
     }
 
     @Override
