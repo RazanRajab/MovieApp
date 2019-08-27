@@ -1,17 +1,24 @@
 package com.example.movieapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentProvider;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.movieapp.Adapters.MoviesAdapter;
+import com.example.movieapp.Database.MyContentProvider;
 import com.example.movieapp.Model.Movie;
 import com.example.movieapp.TheMoviesAPI.MovieResponse;
 import com.example.movieapp.TheMoviesAPI.MoviesService;
@@ -31,11 +38,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String YOUR_API_KEY = "you should put your own api key here";
-    private static final String BASE_URL = "https://api.themoviedb.org/3/" ;
-
     @BindView(R.id.mainRecyclerView) RecyclerView RecyclerView;
-    private List<Movie> Movies = new ArrayList<>();
+    private ArrayList<Movie> Movies = new ArrayList<>();
     private MoviesAdapter moviesAdapter;
 
     @Override
@@ -44,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setTitle("Movies");
-        getPopularMovies();
-        RecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(),2));
+        RecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         moviesAdapter = new MoviesAdapter(Movies);
         RecyclerView.setAdapter(moviesAdapter);
         moviesAdapter.setItemClickListener(new View.OnClickListener() {
@@ -53,12 +56,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
-                Intent n =new Intent(getApplicationContext(),MovieDetailsActivity.class);
+                Intent n = new Intent(getApplicationContext(), MovieDetailsActivity.class);
                 Gson gson = new Gson();
-                n.putExtra(Movie.class.getName(),gson.toJson(Movies.get(position)));
+                n.putExtra(Movie.class.getName(), gson.toJson(Movies.get(position)));
                 startActivity(n);
             }
         });
+        if (savedInstanceState == null) {
+            getPopularMovies();
+        }
     }
 
     @Override
@@ -72,11 +78,12 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.most_popular:
                 getPopularMovies();
-                moviesAdapter.notifyDataSetChanged();
                 break;
             case R.id.top_rated:
                 getTopRatedMovies();
-                moviesAdapter.notifyDataSetChanged();
+                break;
+            case R.id.favorite:
+                getFavorites();
                 break;
             default:
 
@@ -84,15 +91,29 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        outState.putParcelableArrayList("MoviesList",Movies);
+        super.onSaveInstanceState(outState, outPersistentState);
+        Toast.makeText(getApplicationContext(),"onSavedInstanseState",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onRestoreInstanceState(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        Movies = savedInstanceState.getParcelableArrayList("MoviesList");
+        moviesAdapter.notifyDataSetChanged();
+    }
+
     private void getPopularMovies() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         MoviesService service = retrofit.create(MoviesService.class);
         //Run the Request
-        service.getPopular(YOUR_API_KEY)
+        service.getPopular(Constants.YOUR_API_KEY)
                 .enqueue(new Callback<MovieResponse>() {
 
                     @Override
@@ -117,10 +138,11 @@ public class MainActivity extends AppCompatActivity {
                         results.get(i).getUser_rating()));
             }
         }
+        moviesAdapter.notifyDataSetChanged();
     }
     private void getTopRatedMovies() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -132,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
         MoviesService service = retrofit.create(MoviesService.class);
         //Run the Request
-        service.getTopRated(YOUR_API_KEY)
+        service.getTopRated(Constants.YOUR_API_KEY)
                 .enqueue(new Callback<MovieResponse>() {
 
                     @Override
@@ -145,5 +167,34 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+    public void getFavorites() {
+        Uri uri = MyContentProvider.CONTENT_URI;
+        Cursor cursor = getContentResolver()
+                .query(uri, null, null, null, null);
+        if (cursor != null) {
+           Movies.clear();
+            while (cursor.moveToNext()) {
+                int id = cursor
+                        .getInt(cursor.getColumnIndex(MyContentProvider.COLUMN_MOVIE_ID));
+                String poster_url = cursor.
+                        getString(cursor.getColumnIndex(MyContentProvider.COLUMN_POSTER));
+                String title = cursor
+                        .getString(cursor.getColumnIndex(MyContentProvider.COLUMN_TITLE));
+                String release_date = cursor
+                        .getString(cursor.getColumnIndex(MyContentProvider.COLUMN_RELEASE_DATE));
+                String overview = cursor
+                        .getString(cursor.getColumnIndex(MyContentProvider.COLUMN_OVERVIEW));
+                double popularity = cursor
+                        .getDouble(cursor.getColumnIndex(MyContentProvider.COLUMN_POPULARITY));
+                double rating = cursor
+                        .getDouble(cursor.getColumnIndex(MyContentProvider.COLUMN_RATING));
+                Movie m = new Movie(id,poster_url,title,release_date,overview,popularity,rating);
+                m.set_favorite(true);
+                Movies.add(m);
+            }
+            cursor.close();
+        }
+        moviesAdapter.notifyDataSetChanged();
     }
 }

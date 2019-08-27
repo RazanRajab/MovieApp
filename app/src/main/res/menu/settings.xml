@@ -14,4 +14,7 @@
         </menu>
     </item>
 
+    <item android:id="@+id/favorite"
+        android:title="@string/Favorite"/>
+
 </menu>

@@ -1,6 +1,9 @@
 package com.example.movieapp.Model;
 
-public class Movie {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Movie implements Parcelable {
     private int id;
     private String poster_path;
     private String original_title;
@@ -8,6 +11,7 @@ public class Movie {
     private String overview;
     private Double popularity;
     private Double user_rating;
+    private boolean is_favorite;
 
     public Movie(int id, String poster_path, String original_title, String release_date,
                  String overview, Double popularity, Double user_rating) {
@@ -18,6 +22,47 @@ public class Movie {
         this.overview = overview;
         this.popularity = popularity;
         this.user_rating = user_rating;
+        this.is_favorite = false;
+    }
+
+    public Movie(Parcel p){
+        id=p.readInt();
+        poster_path=p.readString();
+        original_title=p.readString();
+        release_date=p.readString();
+        overview=p.readString();
+        popularity=p.readDouble();
+        user_rating=p.readDouble();
+        is_favorite=p.readBoolean();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(poster_path);
+        parcel.writeString(original_title);
+        parcel.writeString(release_date);
+        parcel.writeString(overview);
+        parcel.writeDouble(popularity);
+        parcel.writeDouble(user_rating);
+        parcel.writeValue(is_favorite);
     }
 
     public int getId() {
@@ -74,5 +119,13 @@ public class Movie {
 
     public void setUser_rating(Double user_rating) {
         this.user_rating = user_rating;
+    }
+
+    public boolean Is_favorite() {
+        return is_favorite;
+    }
+
+    public void set_favorite(boolean is_favorite) {
+        this.is_favorite = is_favorite;
     }
 }
