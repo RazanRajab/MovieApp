@@ -63,9 +63,9 @@ public class MoviesAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Movie m = Movies.get(position);
-        Toast.makeText(context, m.getPoster_path(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, m.getPosterPath(), Toast.LENGTH_SHORT).show();
         Picasso.with(context)
-                .load("https://image.tmdb.org/t/p/w185/"+m.getPoster_path())
+                .load("https://image.tmdb.org/t/p/w185/"+m.getPosterPath())
                 .placeholder(R.drawable.ic_movie).error(R.drawable.ic_broken_image)
                 .into(holder.imageView);
     }

@@ -3,6 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:contentDescription="@string/Description"
+    android:orientation="vertical"
+    android:scaleType="centerCrop"
+    android:adjustViewBounds="true"
     android:id="@+id/posterIV">
 
 </ImageView>

@@ -39,7 +39,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.mainRecyclerView) RecyclerView RecyclerView;
-    private ArrayList<Movie> Movies = new ArrayList<>();
+    private ArrayList<Movie> movies = new ArrayList<>();
     private MoviesAdapter moviesAdapter;
 
     @Override
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setTitle("Movies");
         RecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
-        moviesAdapter = new MoviesAdapter(Movies);
+        moviesAdapter = new MoviesAdapter(movies);
         RecyclerView.setAdapter(moviesAdapter);
         moviesAdapter.setItemClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 int position = viewHolder.getAdapterPosition();
                 Intent n = new Intent(getApplicationContext(), MovieDetailsActivity.class);
                 Gson gson = new Gson();
-                n.putExtra(Movie.class.getName(), gson.toJson(Movies.get(position)));
+                n.putExtra(Movie.class.getName(), gson.toJson(movies.get(position)));
                 startActivity(n);
             }
         });
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
-        outState.putParcelableArrayList("MoviesList",Movies);
+        outState.putParcelableArrayList("MoviesList",movies);
         super.onSaveInstanceState(outState, outPersistentState);
         Toast.makeText(getApplicationContext(),"onSavedInstanseState",Toast.LENGTH_LONG).show();
     }
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRestoreInstanceState(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onRestoreInstanceState(savedInstanceState, persistentState);
-        Movies = savedInstanceState.getParcelableArrayList("MoviesList");
+        movies = savedInstanceState.getParcelableArrayList("MoviesList");
         moviesAdapter.notifyDataSetChanged();
     }
 
@@ -128,11 +128,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
     private void convertResponseToMovies(Response<MovieResponse> response){
-        Movies.clear();
+        movies.clear();
         List<Result> results = response.body().getResults();
         for (int i = 0; i < results.size(); i++) {
             if (results.get(i).getPoster_path() != null) {
-                Movies.add(new Movie(results.get(i).getId(), results.get(i).getPoster_path(),
+                movies.add(new Movie(results.get(i).getId(), results.get(i).getPoster_path(),
                         results.get(i).getOriginal_title(), results.get(i).getRelease_date(),
                         results.get(i).getOverview(), results.get(i).getPopularity(),
                         results.get(i).getUser_rating()));
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = getContentResolver()
                 .query(uri, null, null, null, null);
         if (cursor != null) {
-           Movies.clear();
+           movies.clear();
             while (cursor.moveToNext()) {
                 int id = cursor
                         .getInt(cursor.getColumnIndex(MyContentProvider.COLUMN_MOVIE_ID));
@@ -190,8 +190,8 @@ public class MainActivity extends AppCompatActivity {
                 double rating = cursor
                         .getDouble(cursor.getColumnIndex(MyContentProvider.COLUMN_RATING));
                 Movie m = new Movie(id,poster_url,title,release_date,overview,popularity,rating);
-                m.set_favorite(true);
-                Movies.add(m);
+                m.setFavorite(true);
+                movies.add(m);
             }
             cursor.close();
         }

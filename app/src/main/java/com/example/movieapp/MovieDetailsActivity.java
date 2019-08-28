@@ -103,11 +103,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
             getReviews();
             getTrailers();
         }
-        setTitle(m.getOriginal_title());
-        rating.setText("rating: "+m.getUser_rating() + "/10");
+        setTitle(m.getOriginalTitle());
+        rating.setText("rating: "+m.getUserRating() + "/10");
         popularity.setText("popularity: "+m.getPopularity() + "");
-        date.setText("release date: "+m.getRelease_date());
-        if(m.Is_favorite()){
+        date.setText("release date: "+m.getReleaseDate());
+        if(m.isFavorite()){
             Favorite.setText("Remove from Favorite");
         }
         if (!m.getOverview().trim().equals("")) {
@@ -116,21 +116,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
             overview.setText("No available data");
         }
         Picasso.with(getApplicationContext())
-                .load("https://image.tmdb.org/t/p/w342/" + m.getPoster_path())
+                .load("https://image.tmdb.org/t/p/w342/" + m.getPosterPath())
                 .error(R.drawable.ic_broken_image).placeholder(R.drawable.ic_movie)
                 .into(poster);
         Favorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(m.Is_favorite()){
+                if(m.isFavorite()){
                     Favorite.setText("Add to Favorite");
-                    m.set_favorite(false);
+                    m.setFavorite(false);
                     //remove from database
                     UnFavoriteMovie(m);
                 }
                 else {
                     Favorite.setText("Remove from Favorite");
-                    m.set_favorite(true);
+                    m.setFavorite(true);
                     //add to database
                     FavoriteMovie(m);
                 }
@@ -159,12 +159,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private void FavoriteMovie(Movie m) {
         ContentValues Values = new ContentValues();
         Values.put(MyContentProvider.COLUMN_MOVIE_ID, m.getId());
-        Values.put(MyContentProvider.COLUMN_POSTER, m.getPoster_path());
-        Values.put(MyContentProvider.COLUMN_TITLE, m.getOriginal_title());
+        Values.put(MyContentProvider.COLUMN_POSTER, m.getPosterPath());
+        Values.put(MyContentProvider.COLUMN_TITLE, m.getOriginalTitle());
         Values.put(MyContentProvider.COLUMN_OVERVIEW, m.getOverview());
-        Values.put(MyContentProvider.COLUMN_RELEASE_DATE, m.getRelease_date());
+        Values.put(MyContentProvider.COLUMN_RELEASE_DATE, m.getReleaseDate());
         Values.put(MyContentProvider.COLUMN_POPULARITY, m.getPopularity());
-        Values.put(MyContentProvider.COLUMN_RATING, m.getUser_rating());
+        Values.put(MyContentProvider.COLUMN_RATING, m.getUserRating());
         getContentResolver().insert(MyContentProvider.CONTENT_URI, Values);
         Toast.makeText(MovieDetailsActivity.this,
                 "Added To Favorites", Toast.LENGTH_SHORT).show();
